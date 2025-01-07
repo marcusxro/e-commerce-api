@@ -28,10 +28,10 @@ export class UsersService {
     async create_user(createUserDto: CreateUserDto) {
 
         try {
-            const existingUser = await this.userRepository.findOne({ where: { fullname: createUserDto.fullname } });
+            const existingUser = await this.userRepository.findOne({ where: { userid: createUserDto.userid } });
 
             if (existingUser) {
-                return 'User already exists';
+                return new BadRequestException('A user with the same userid already exists. Please use a different account.');
             }
 
             const newUser = this.userRepository.create(createUserDto);
@@ -39,12 +39,7 @@ export class UsersService {
             return { message: "User created successfully", user: newUser };
         }
         catch (err: any) {
-            if (err.code === '23505') {
-                // Handle unique constraint violation
-                throw new BadRequestException(
-                  'A user with the same userid already exists. Please use a different userid.',
-                );
-              }
+
             throw new InternalServerErrorException();
         }
 
