@@ -9,18 +9,20 @@ import {
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
+import { ParseUseridPipe } from './pipes/parse-userid.pipe';
 
 
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
-    
+
 
 
     @Get()
     async get_all_users(
-        @Ip() ip: string, 
-        @Query('limit') limit?: number, 
+        @Ip() ip: string,
+        @Query('limit') limit?: number,
         @Query('role') role?: 'customer' | 'participant'
     ) {
 
@@ -42,11 +44,16 @@ export class UsersController {
     }
 
 
-    @Patch(':id')
-    async update_user(@Param('id', ParseIntPipe) id: number, @Body() body) {
-        return await this.usersService.update_user(id, body);
+    @Patch('update/:userid')
+    async update_user(
+        @Ip() ip: string,
+        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Body(ValidationPipe) userUpdate: UpdateUserDto
+    ) {
+        console.log('User Update:', userid);
+        return await this.usersService.update_user(ip, userid, userUpdate);
     }
-
+    
 
 
     @Delete(':id')

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
 
 @Injectable()
 export class UsersService {
@@ -66,9 +67,32 @@ export class UsersService {
     }
 
 
-    async update_user(id: number, body) {
-        return `User with id ${id} updated`;
+    async update_user(
+        ip: string,
+        userid: string,
+        userUpdateDto: UpdateUserDto
+    ) {
+        console.log('User ID:', userid);
+        const user = await this.userRepository.findOne({ where: { userid: userid } });
+    
+        console.log('User:', user);
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
+    
+        // Check if 'userid' is being updated
+        if (userUpdateDto.userid) {
+            throw new BadRequestException('The userid cannot be updated');
+        }
+    
+        // If 'userid' is not part of the update, proceed to update the user
+        const updatedUser = Object.assign(user, userUpdateDto);
+        await this.userRepository.save(updatedUser);
+    
+        return { message: "User updated successfully", user: updatedUser };
     }
+    
+
 
     async delete_user(id: number) {
         return `User with id ${id} deleted`;
