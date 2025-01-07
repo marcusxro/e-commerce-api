@@ -16,9 +16,11 @@ export class User {
     role: string;
 
     @Column()
-    followers: Array<string>;
+    userid: string;
 
-
-    @Column()
-    following: Array<string>;
+    @Column({ type: 'simple-array' })
+    followers: string[];
+  
+    @Column({ type: 'simple-array' })
+    following: string[];
 }

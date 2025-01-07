@@ -18,6 +18,12 @@ export class CreateUserDto {
     @MinLength(10)
     @MaxLength(50)
     email: string
+
+
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(6)
+    userid: string
     
     @IsArray()
     role: Array<string>
