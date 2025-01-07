@@ -34,12 +34,15 @@ export class UsersController {
         return await this.usersService.get_user_by_id(id);
     }
 
-
     @Post()
     async create_user(
         @Ip() ip: string,
         @Body(ValidationPipe) user: CreateUserDto
     ) {
+    
+        const validatedUserId = new ParseUseridPipe().transform(user.userid);
+        user.userid = validatedUserId;
+
         return await this.usersService.create_user(user);
     }
 
@@ -56,9 +59,12 @@ export class UsersController {
     
 
 
-    @Delete(':id')
-    async delete_user(@Param('id', ParseIntPipe) id: number) {
-        return await this.usersService.delete_user(id);
+    @Delete('delete/:userid')
+    async delete_user(
+        @Ip() ip: string,
+        @Param('userid', new ParseUseridPipe()) userid: string, 
+    ) {
+        return await this.usersService.delete_user(userid);
     }
 
 }
