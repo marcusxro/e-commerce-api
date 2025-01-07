@@ -16,10 +16,30 @@ export class UsersService {
 
     async get_all_users(
         ip: string,
-        limit: number
+        limit: number,
+        role: 'customer' | 'participant'
     ) {
-        return await this.userRepository.find();
+        console.log('Limit:', limit);
+        console.log('Role:', role);
+
+        const users = await this.userRepository.find({
+            where: { role: role },
+            take: limit,
+        });
+
+        if (role) {
+            if (role !== 'customer' && role !== 'participant') {
+                throw new BadRequestException('Invalid role specified. Allowed roles are "customer" or "participant".');
+            }
+        }
+
+        if (users.length < limit) {
+            throw new BadRequestException('The number of users returned is less than the limit specified.');
+        }
+
+        return { message: "Users fetched successfully", size: users.length, users: users };
     }
+
     async get_user_by_id(id: number) {
         return `User with id ${id}`;
     }
@@ -28,7 +48,8 @@ export class UsersService {
     async create_user(createUserDto: CreateUserDto) {
 
         try {
-            const existingUser = await this.userRepository.findOne({ where: { userid: createUserDto.userid } });
+            const existingUser = await
+                this.userRepository.findOne({ where: { userid: createUserDto.userid } });
 
             if (existingUser) {
                 return new BadRequestException('A user with the same userid already exists. Please use a different account.');
@@ -42,8 +63,8 @@ export class UsersService {
 
             throw new InternalServerErrorException();
         }
-
     }
+
 
     async update_user(id: number, body) {
         return `User with id ${id} updated`;

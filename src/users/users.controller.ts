@@ -20,9 +20,11 @@ export class UsersController {
     @Get()
     async get_all_users(
         @Ip() ip: string, 
-        @Query('limit') limit: number,
+        @Query('limit') limit?: number, 
+        @Query('role') role?: 'customer' | 'participant'
     ) {
-        return await this.usersService.get_all_users(ip, limit);
+
+        return await this.usersService.get_all_users(ip, limit, role);
     }
 
     @Get(':id')
