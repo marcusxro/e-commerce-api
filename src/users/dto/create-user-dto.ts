@@ -25,8 +25,8 @@ export class CreateUserDto {
     @MinLength(6)
     userid: string
     
-    @IsArray()
-    role: Array<string>
+    @IsString()
+    role: string
 
     @IsArray()
     followers: Array<string>

@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 
 @Entity({ name: 'users' })
-export class User {
+export class UserEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -15,7 +15,7 @@ export class User {
     @Column()
     role: string;
 
-    @Column()
+    @Column({ unique: true })
     userid: string;
 
     @Column({ type: 'simple-array' })
