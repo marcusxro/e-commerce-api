@@ -4,7 +4,8 @@ import {
     Param, Patch,
     Post, Query,
     ParseIntPipe, ValidationPipe,
-    Ip
+    Ip, UnauthorizedException, 
+    Req
 } from '@nestjs/common';
 
 import { UsersService } from './users.service';
@@ -33,7 +34,14 @@ export class UsersController {
     @Get(':userid')
     async get_user_by_id(
         @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Req() req: any
     ) {
+        const authenticatedUser = req['user']; // Extract user from the request
+        
+        if (authenticatedUser.id !== userid) {
+            throw new UnauthorizedException('You can only access your own data.');
+          }
+      
         return await this.usersService.get_user_by_id(userid);
     }
     
@@ -55,7 +63,6 @@ export class UsersController {
         @Param('userid', new ParseUseridPipe()) userid: string, 
         @Body(ValidationPipe) userUpdate: UpdateUserDto
     ) {
-        console.log('User Update:', userid);
         return await this.usersService.update_user(ip, userid, userUpdate);
     }
     

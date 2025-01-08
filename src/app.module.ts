@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ClerkMiddleware } from './users/middleware/clerk.middleware';
 
 
 @Module({
@@ -52,4 +53,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
   ]),
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ClerkMiddleware).forRoutes('*'); // Apply to all routes
+  }
+}

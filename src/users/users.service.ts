@@ -20,8 +20,6 @@ export class UsersService {
         limit: number,
         role: 'customer' | 'participant'
     ) {
-        console.log('Limit:', limit);
-        console.log('Role:', role);
 
         const users = await this.userRepository.find({
             where: { role: role },
@@ -81,10 +79,8 @@ export class UsersService {
         userid: string,
         userUpdateDto: UpdateUserDto
     ) {
-        console.log('User ID:', userid);
         const user = await this.userRepository.findOne({ where: { userid: userid } });
 
-        console.log('User:', user);
         if (!user) {
             throw new BadRequestException('User not found');
         }
