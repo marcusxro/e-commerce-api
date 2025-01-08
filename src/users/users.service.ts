@@ -41,8 +41,17 @@ export class UsersService {
         return { message: "Users fetched successfully", size: users.length, users: users };
     }
 
-    async get_user_by_id(id: number) {
-        return `User with id ${id}`;
+    async get_user_by_id(
+        userid: string
+    ) {
+
+        const user = await this.userRepository.findOne({ where: { userid: userid } });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        return { message: "User fetched successfully", user: user };
     }
 
 
@@ -93,26 +102,87 @@ export class UsersService {
     }
 
 
+    async add_follower
+        (
+            userid: string,
+            follower: string
+        ) {
+        const user = await this.userRepository.findOne({ where: { userid: userid } });
+
+        if (follower === userid) {
+            throw new BadRequestException('User cannot follow themselves');
+        }
+
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
+        if (!follower) {
+            throw new BadRequestException('Follower not found');
+        }
+
+        const isFollower = user.followers.find(f => f === follower);
+
+        if (isFollower) {
+            throw new BadRequestException('Follower already exists');
+        }
+
+        const userFollowers = user.followers;
+        userFollowers.push(follower);
+
+        const updatedUser = await this.userRepository.save(user);
+        return { message: "Follower added successfully", user: updatedUser };
+    }
+
+
+    async remove_follower
+    (
+        userid: string,
+        follower: string
+    ) {
+        const user = await this.userRepository.findOne({ where: { userid: userid } });
+
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
+
+        if (!follower) {
+            throw new BadRequestException('Follower not found');
+        }
+
+        const isFollower = user.followers.find(f => f === follower);
+
+        if (!isFollower) {
+            throw new BadRequestException('Follower does not exist');
+        }
+
+        const userFollowers = user.followers.filter(f => f !== follower);
+
+        user.followers = userFollowers;
+        const updatedUser = await this.userRepository.save(user);
+        return { message: "Follower removed successfully", user: updatedUser };
+    }
+
+
     async delete_user(
         userid: string
     ) {
         const foundUser = await this.userRepository.findOne({ where: { userid: userid } });
-    
+
         if (!foundUser) {
             throw new BadRequestException('User not found');
         }
-    
+
         const deletedUser = await this.userRepository.delete({ userid: userid });
-    
+
         if (deletedUser.affected === 0) {
             throw new NotFoundException(`User with userid ${userid} not found`);
         }
-    
+
         return {
             message: "User deleted successfully",
             status: "success",
             deletedUser: foundUser
         };
     }
-    
+
 }
