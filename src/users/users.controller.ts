@@ -96,5 +96,22 @@ export class UsersController {
         return await this.usersService.delete_user(userid);
     }
 
+
+    @Patch('ban/:userid')
+    async ban_user(
+        @Ip() ip: string,
+        @Param('userid', new ParseUseridPipe()) userid: string, 
+    ) {
+        return await this.usersService.ban_user(userid);
+    }
+
+    @Patch('unban/:userid')
+    async unban_user(
+        @Ip() ip: string,
+        @Param('userid', new ParseUseridPipe()) userid: string, 
+    ) {
+        return await this.usersService.unban_user(userid);
+    }
+
 }
 

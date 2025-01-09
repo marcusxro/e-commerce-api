@@ -1,9 +1,11 @@
-import { Injectable, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user-dto';
 import { UpdateUserDto } from './dto/update-user-dto';
+import { ClerkClientProvider } from './helpers/clerk-client.provider';
+import { ClerkClient } from '@clerk/backend';  // Correctly import ClerkClient
 
 @Injectable()
 export class UsersService {
@@ -11,9 +13,10 @@ export class UsersService {
 
     constructor(
         @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>
-    ) { }
-
+        private readonly userRepository: Repository<UserEntity>,
+        @Inject('ClerkClient') private readonly clerkClient: ClerkClient, // Inject ClerkClient here
+      ) {}
+    
 
     async get_all_users(
         ip: string,
@@ -131,10 +134,10 @@ export class UsersService {
 
 
     async remove_follower
-    (
-        userid: string,
-        follower: string
-    ) {
+        (
+            userid: string,
+            follower: string
+        ) {
         const user = await this.userRepository.findOne({ where: { userid: userid } });
 
         if (!user) {
@@ -180,5 +183,34 @@ export class UsersService {
             deletedUser: foundUser
         };
     }
+
+
+    async ban_user(
+        userid: string
+    ) {
+        try {
+            const user = await this.clerkClient.users.banUser(userid);
+            return user;
+        } catch (error) {
+            throw new Error('Failed to ban user: ' + error.message);
+        }
+    }
+
+
+    async unban_user
+    (
+        userid: string
+    ) {
+        try {
+            const user = await this.clerkClient.users.unbanUser(userid);
+            return user;
+        } catch (error) {
+            throw new Error('Failed to unban user: ' + error.message);
+        }
+    }
+
+    
+
+
 
 }
