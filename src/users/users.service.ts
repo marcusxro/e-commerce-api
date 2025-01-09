@@ -18,7 +18,7 @@ export class UsersService {
     async get_all_users(
         ip: string,
         limit: number,
-        role: 'customer' | 'participant'
+        role: 'customer' | 'participant' | 'admin'
     ) {
 
         const users = await this.userRepository.find({

@@ -3,9 +3,8 @@ import {
     Delete, Get,
     Param, Patch,
     Post, Query,
-    ParseIntPipe, ValidationPipe,
-    Ip, UnauthorizedException, 
-    Req
+    ValidationPipe, Ip, 
+    Req, UseGuards
 } from '@nestjs/common';
 
 import { UsersService } from './users.service';
@@ -13,6 +12,10 @@ import { CreateUserDto } from './dto/create-user-dto';
 import { UpdateUserDto } from './dto/update-user-dto';
 import { ParseUseridPipe } from './pipes/parse-userid.pipe';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { ClerkAuthGuard } from './auth/clerk-auth.guard';
+import { RolesGuard } from './auth/roles.guard';
+import { Roles } from './decorator/role.decorator';
+import { IsOwnerGuard } from './auth/is-owner.guard';
 
 
 @SkipThrottle()
@@ -20,17 +23,20 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
-    @SkipThrottle({ default: false })
+    @UseGuards(ClerkAuthGuard, RolesGuard)
+    @Throttle({ short: { ttl: 50000, limit: 30 } })
+    @Roles('admin')
     @Get()
     async get_all_users(
         @Ip() ip: string,
         @Query('limit') limit?: number,
-        @Query('role') role?: 'customer' | 'participant'
+        @Query('role') role?: 'customer' | 'participant' | 'admin'
     ) {
         return await this.usersService.get_all_users(ip, limit, role);
     }
 
     @Throttle({ short: { ttl: 50000, limit: 30 } })
+    @UseGuards(IsOwnerGuard)
     @Get(':userid')
     async get_user_by_id(
         @Param('userid', new ParseUseridPipe()) userid: string, 
@@ -51,6 +57,7 @@ export class UsersController {
     }
  
     @Throttle({ short: { ttl: 50000, limit: 30 } })
+    @UseGuards(IsOwnerGuard)
     @Patch('update/:userid')
     async update_user(
         @Ip() ip: string,
@@ -60,7 +67,7 @@ export class UsersController {
         return await this.usersService.update_user(ip, userid, userUpdate);
     }
     
-
+    @UseGuards(IsOwnerGuard)
     @Patch('add-follower/:userid')
     async add_follower(
         @Ip() ip: string,
@@ -70,6 +77,7 @@ export class UsersController {
         return await this.usersService.add_follower(userid, follower);
     }
 
+    @UseGuards(IsOwnerGuard)
     @Patch('remove-follower/:userid')
     async remove_follower(
         @Ip() ip: string,
@@ -79,7 +87,7 @@ export class UsersController {
         return await this.usersService.remove_follower(userid, follower);
     }
     
-
+    @UseGuards(IsOwnerGuard)
     @Delete('delete/:userid')
     async delete_user(
         @Ip() ip: string,

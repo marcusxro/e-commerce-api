@@ -27,7 +27,7 @@ export class CreateUserDto {
     userid: string
     
     @IsString()
-    @IsEnum(['customer', 'participant'], {
+    @IsEnum(['customer', 'participant', 'admin'], {
         message: 'Role must be either customer or participant'
     })
     role: string
