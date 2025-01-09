@@ -9,18 +9,27 @@ import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ClerkMiddleware } from './users/middleware/clerk.middleware';
+import { ClerkClientProvider } from './users/helpers/clerk-client.provider';
+import { AuthModule } from './users/auth/auth.module';
+import { ClerkAuthGuard } from './users/auth/clerk-auth.guard';
 
 
 @Module({
   controllers: [AppController],
   providers: [
     AppService,
+    ClerkClientProvider,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: ClerkAuthGuard,
+    }
   ],
   imports: [
+    AuthModule,
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true, 
@@ -50,11 +59,14 @@ import { ClerkMiddleware } from './users/middleware/clerk.middleware';
       ttl: 1000,
       limit: 3, // requests per ttl
     }
-  ]),
+  ])
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ClerkMiddleware).forRoutes('*'); // Apply to all routes
-  }
-}
+
+export class AppModule {}
+
+// export class AppModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(ClerkMiddleware).forRoutes('*'); // Apply to all routes
+//   }
+// }

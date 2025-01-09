@@ -36,12 +36,6 @@ export class UsersController {
         @Param('userid', new ParseUseridPipe()) userid: string, 
         @Req() req: any
     ) {
-        const authenticatedUser = req['user']; // Extract user from the request
-        
-        if (authenticatedUser.id !== userid) {
-            throw new UnauthorizedException('You can only access your own data.');
-          }
-      
         return await this.usersService.get_user_by_id(userid);
     }
     
