@@ -12,24 +12,25 @@ import { ClerkMiddleware } from './users/middleware/clerk.middleware';
 import { ClerkClientProvider } from './users/helpers/clerk-client.provider';
 import { AuthModule } from './users/auth/auth.module';
 import { ClerkAuthGuard } from './users/auth/clerk-auth.guard';
+import { ItemsModule } from './items/items.module';
 
 
 @Module({
   controllers: [AppController],
   providers: [
     AppService,
-    ClerkClientProvider,
+    // ClerkClientProvider,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-    {
-      provide: APP_GUARD,
-      useClass: ClerkAuthGuard,
-    }
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ClerkAuthGuard,
+    // }
   ],
   imports: [
-    AuthModule,
+    // AuthModule,
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true, 
@@ -59,7 +60,8 @@ import { ClerkAuthGuard } from './users/auth/clerk-auth.guard';
       ttl: 1000,
       limit: 3, // requests per ttl
     }
-  ])
+  ]),
+    ItemsModule
   ],
 })
 
