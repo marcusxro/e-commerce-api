@@ -46,8 +46,9 @@ import { ItemsModule } from './items/items.module';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
         entities: [join(process.cwd(), 'dist/**/*.entity.js')],
+        ssl: configService.get('DB_SSL') === 'true' ? { rejectUnauthorized: false } : false,
       }),
     }),
     ThrottlerModule.forRoot([{

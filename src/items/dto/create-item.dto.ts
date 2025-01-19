@@ -11,9 +11,12 @@ import {
 
 
 class itemDto {
-    @IsString()
+    @IsNumber()
     id: string;
 
+    @IsString()
+    itemId: string;
+    
     @IsString()
     name: string;
 
@@ -59,7 +62,7 @@ export class CreateItemDto {
 
     @IsObject()
     ratings: ratings;
-    
+
     @IsArray()
     items: itemDto[];
 
@@ -70,7 +73,6 @@ export class CreateItemDto {
     @IsDate()
     createdAt: Date;
 
-    
     @IsNumber()
     @IsDate()
     updatedAt: Date;
