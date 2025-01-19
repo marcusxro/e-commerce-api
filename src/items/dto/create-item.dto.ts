@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import {
     IsString, IsNotEmpty,
     IsEmail, IsArray,
@@ -6,17 +7,15 @@ import {
     IsBoolean,
     IsObject,
     IsNumber,
-    IsDate, 
+    IsDate,
+    ValidateNested,
 } from "class-validator"; //class-validator class-transformer
 
 
 class itemDto {
     @IsNumber()
-    id: string;
+    id: number;
 
-    @IsString()
-    itemId: string;
-    
     @IsString()
     name: string;
 
@@ -33,7 +32,7 @@ class itemDto {
     sold: number;
 }
 
-class ratings {
+class RatingsDto {
     @IsNumber()
     average: number;
 
@@ -42,9 +41,14 @@ class ratings {
 }
 
 export class CreateItemDto {
+
     @IsString()
     @IsNotEmpty()
-    id: string;
+    userId: string;
+
+    @IsString()
+    itemId: string;
+
 
     @IsString()
     @IsNotEmpty()
@@ -61,19 +65,24 @@ export class CreateItemDto {
     isFeatured: boolean;
 
     @IsObject()
-    ratings: ratings;
+    @ValidateNested()
+    @Type(() => RatingsDto)
+    ratings: RatingsDto;
 
     @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => itemDto)
     items: itemDto[];
 
     @IsArray()
     tags: string[];
 
-    @IsNumber()
-    @IsDate()
-    createdAt: Date;
 
-    @IsNumber()
-    @IsDate()
-    updatedAt: Date;
+     @IsDate()
+  @Type(() => Date) // Transform string to Date
+  createdAt: Date;
+
+  @IsDate()
+  @Type(() => Date) // Transform string to Date
+  updatedAt: Date;
 }

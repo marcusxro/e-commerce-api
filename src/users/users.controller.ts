@@ -21,11 +21,12 @@ import { IsOwnerGuard } from './auth/is-owner.guard';
 @SkipThrottle()
 @Controller('users')
 export class UsersController {
+    
     constructor(private readonly usersService: UsersService) { }
 
-    @UseGuards(ClerkAuthGuard, RolesGuard)
+    @UseGuards(RolesGuard)
     @Throttle({ short: { ttl: 50000, limit: 30 } })
-    @Roles('admin')
+    // @Roles('admin')
     @Get()
     async get_all_users(
         @Ip() ip: string,
