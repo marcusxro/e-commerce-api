@@ -3,7 +3,7 @@ import {
     Delete, Get,
     Param, Patch,
     Post, Query,
-    ValidationPipe, Ip, 
+    ValidationPipe, Ip,
     Req, UseGuards
 } from '@nestjs/common';
 
@@ -16,17 +16,20 @@ import { ClerkAuthGuard } from './auth/clerk-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { Roles } from './decorator/role.decorator';
 import { IsOwnerGuard } from './auth/is-owner.guard';
+import { ApiKeyRole } from 'src/Decorators/api.key.role';
+import { ApiKeyGuard } from 'src/Guard/api.key.guard';
 
 
 @SkipThrottle()
 @Controller('users')
 export class UsersController {
-    
+
     constructor(private readonly usersService: UsersService) { }
 
     @UseGuards(RolesGuard)
     @Throttle({ short: { ttl: 50000, limit: 30 } })
-    // @Roles('admin')
+    @ApiKeyRole('admin')  
+    @UseGuards(ApiKeyGuard)  
     @Get()
     async get_all_users(
         @Ip() ip: string,
@@ -36,17 +39,24 @@ export class UsersController {
         return await this.usersService.get_all_users(ip, limit, role);
     }
 
+
+
     @Throttle({ short: { ttl: 50000, limit: 30 } })
     @UseGuards(IsOwnerGuard)
+    @ApiKeyRole('client')  
+    @UseGuards(ApiKeyGuard)  
     @Get(':userid')
     async get_user_by_id(
-        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Param('userid', new ParseUseridPipe()) userid: string,
         @Req() req: any
     ) {
         return await this.usersService.get_user_by_id(userid);
     }
-    
+
+
     @Throttle({ short: { ttl: 50000, limit: 30 } })
+    @ApiKeyRole('client')  
+    @UseGuards(ApiKeyGuard)  
     @Post()
     async create_user(
         @Ip() ip: string,
@@ -56,60 +66,72 @@ export class UsersController {
         user.userid = validatedUserId;
         return await this.usersService.create_user(user);
     }
- 
+    
+
     @Throttle({ short: { ttl: 50000, limit: 30 } })
     @UseGuards(IsOwnerGuard)
+    @ApiKeyRole('client')  
+    @UseGuards(ApiKeyGuard)  
     @Patch('update/:userid')
     async update_user(
         @Ip() ip: string,
-        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Param('userid', new ParseUseridPipe()) userid: string,
         @Body(ValidationPipe) userUpdate: UpdateUserDto
     ) {
         return await this.usersService.update_user(ip, userid, userUpdate);
     }
-    
+
     @UseGuards(IsOwnerGuard)
+    @ApiKeyRole('client')  
+    @UseGuards(ApiKeyGuard)  
     @Patch('add-follower/:userid')
     async add_follower(
         @Ip() ip: string,
-        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Param('userid', new ParseUseridPipe()) userid: string,
         @Query('follower', new ParseUseridPipe()) follower: string
     ) {
         return await this.usersService.add_follower(userid, follower);
     }
 
     @UseGuards(IsOwnerGuard)
+    @ApiKeyRole('client')  
+    @UseGuards(ApiKeyGuard)  
     @Patch('remove-follower/:userid')
     async remove_follower(
         @Ip() ip: string,
-        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Param('userid', new ParseUseridPipe()) userid: string,
         @Query('follower', new ParseUseridPipe()) follower: string
     ) {
         return await this.usersService.remove_follower(userid, follower);
     }
-    
+
     @UseGuards(IsOwnerGuard)
+    @ApiKeyRole('client')  
+    @UseGuards(ApiKeyGuard)  
     @Delete('delete/:userid')
     async delete_user(
         @Ip() ip: string,
-        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Param('userid', new ParseUseridPipe()) userid: string,
     ) {
         return await this.usersService.delete_user(userid);
     }
 
-
+    @ApiKeyRole('admin')  
+    @UseGuards(ApiKeyGuard)  
     @Patch('ban/:userid')
     async ban_user(
         @Ip() ip: string,
-        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Param('userid', new ParseUseridPipe()) userid: string,
     ) {
         return await this.usersService.ban_user(userid);
     }
 
+    @ApiKeyRole('admin')  
+    @UseGuards(ApiKeyGuard)  
     @Patch('unban/:userid')
     async unban_user(
         @Ip() ip: string,
-        @Param('userid', new ParseUseridPipe()) userid: string, 
+        @Param('userid', new ParseUseridPipe()) userid: string,
     ) {
         return await this.usersService.unban_user(userid);
     }
