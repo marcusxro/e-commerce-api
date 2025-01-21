@@ -97,7 +97,20 @@ export class ItemsService {
 
 
 
-  remove(id: number) {
-    return `This action removes a #${id} item`;
-  }
+  async remove(id: string) {
+    try {
+      const item = await this.itemsRepository.findOne({ where: { itemId: id } });
+      if (!item) {
+        throw new BadRequestException('Item not found');
+      }
+
+      await this.itemsRepository.remove(item);
+
+      return { message: 'Item deleted successfully' };
+    }
+    catch (error) {
+      console.error('Error in deleting item:', error);
+      throw new BadRequestException(error);
+    }
+  } 
 }

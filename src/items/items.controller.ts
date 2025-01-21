@@ -37,14 +37,14 @@ export class ItemsController {
   @Patch('update/:id')
   update(
     @Param('id') id: string,
-    @Body(ValidationPipe) updateItemDto: UpdateItemDto
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) updateItemDto: UpdateItemDto
   ) {
     return this.itemsService.update(id, updateItemDto);
   }
 
 
-  @Delete(':id')
+  @Delete('delete/:id')
   remove(@Param('id') id: string) {
-    return this.itemsService.remove(+id);
+    return this.itemsService.remove(id);
   }
 }
