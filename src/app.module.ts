@@ -13,12 +13,14 @@ import { ClerkClientProvider } from './users/helpers/clerk-client.provider';
 import { AuthModule } from './users/auth/auth.module';
 import { ClerkAuthGuard } from './users/auth/clerk-auth.guard';
 import { ItemsModule } from './items/items.module';
+import { ApiKeyService } from './Service/api.key.service';
 
 
 @Module({
   controllers: [AppController],
   providers: [
     AppService,
+    ApiKeyService,
     // ClerkClientProvider,
     {
       provide: APP_GUARD,

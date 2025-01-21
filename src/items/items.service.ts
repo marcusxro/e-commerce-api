@@ -103,9 +103,7 @@ export class ItemsService {
       if (!item) {
         throw new BadRequestException('Item not found');
       }
-
       await this.itemsRepository.remove(item);
-
       return { message: 'Item deleted successfully' };
     }
     catch (error) {

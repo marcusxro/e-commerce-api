@@ -9,6 +9,7 @@ import {
     IsNumber,
     IsDate,
     ValidateNested,
+    Min,
 } from "class-validator"; //class-validator class-transformer
 
 
@@ -49,12 +50,15 @@ export class CreateItemDto {
     @IsString()
     itemId: string;
 
-
     @IsString()
     @IsNotEmpty()
+    @MinLength(4)
+    @MaxLength(40)
     name: string;
 
     @IsString()
+    @MinLength(10)
+    @MaxLength(200)
     description: string;
 
     @IsString()
@@ -77,12 +81,11 @@ export class CreateItemDto {
     @IsArray()
     tags: string[];
 
+    @IsDate()
+    @Type(() => Date) // Transform string to Date
+    createdAt: Date;
 
-     @IsDate()
-  @Type(() => Date) // Transform string to Date
-  createdAt: Date;
-
-  @IsDate()
-  @Type(() => Date) // Transform string to Date
-  updatedAt: Date;
+    @IsDate()
+    @Type(() => Date) // Transform string to Date
+    updatedAt: Date;
 }
