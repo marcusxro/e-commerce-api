@@ -3,13 +3,14 @@ import {
   Delete, Get,
   Param, Patch,
   Post, Query,
-  ValidationPipe, Ip, 
+  ValidationPipe, Ip,
   Req, UseGuards
 } from '@nestjs/common';
 
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { IsOwnerGuard } from 'src/users/auth/is-owner.guard';
 
 @Controller('items')
 export class ItemsController {
@@ -33,10 +34,14 @@ export class ItemsController {
     return this.itemsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-    return this.itemsService.update(+id, updateItemDto);
+  @Patch('update/:id')
+  update(
+    @Param('id') id: string,
+    @Body(ValidationPipe) updateItemDto: UpdateItemDto
+  ) {
+    return this.itemsService.update(id, updateItemDto);
   }
+
 
   @Delete(':id')
   remove(@Param('id') id: string) {

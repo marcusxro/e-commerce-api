@@ -20,7 +20,7 @@ export class ItemsService {
   async create(createItemDto: CreateItemDto) {
     try {
       // Ensure that you're not manually stringifying objects
-     const existingItem = await this.itemsRepository.findOne({ where: { itemId: createItemDto.itemId } });
+      const existingItem = await this.itemsRepository.findOne({ where: { itemId: createItemDto.itemId } });
 
 
       if (existingItem) {
@@ -68,9 +68,34 @@ export class ItemsService {
     };
   }
 
-  update(id: number, updateItemDto: UpdateItemDto) {
-    return `This action updates a #${id} item`;
+  async update(
+    id: string,
+    updateItemDto: UpdateItemDto
+  ) {
+    try {
+
+      const item = await this.itemsRepository.findOne({ where: { itemId: id } });
+      if (!item) {
+        throw new BadRequestException('Item not found');
+      }
+
+     const updatedDate: Date = new Date();
+
+      updateItemDto.updatedAt = updatedDate
+
+      const updatedItem = Object.assign(item, updateItemDto);
+
+      await this.itemsRepository.save(updatedItem);
+
+      return { message: 'Item updated successfully', item: updatedItem };
+    }
+    catch (error) {
+      console.error('Error in updating item:', error);
+      throw new BadRequestException(error);
+    }
   }
+
+
 
   remove(id: number) {
     return `This action removes a #${id} item`;
