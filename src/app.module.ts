@@ -14,6 +14,7 @@ import { AuthModule } from './users/auth/auth.module';
 import { ClerkAuthGuard } from './users/auth/clerk-auth.guard';
 import { ItemsModule } from './items/items.module';
 import { ApiKeyService } from './Service/api.key.service';
+import { ApiKey } from './Entities/api.entity';
 
 
 @Module({
@@ -33,6 +34,7 @@ import { ApiKeyService } from './Service/api.key.service';
   ],
   imports: [
     // AuthModule,
+    TypeOrmModule.forFeature([ApiKey]), // Register ApiKey entity
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true, 

@@ -15,7 +15,6 @@ async function bootstrap() {
   });
 
 
-  app.useGlobalGuards(new ApiKeyGuard(app.get(ApiKeyService)));
 
   await app.listen(process.env.PORT ?? 8080);
 }
