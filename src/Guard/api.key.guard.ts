@@ -6,8 +6,8 @@ import { Reflector } from '@nestjs/core';
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
     constructor(
-        private readonly apiKeyService: ApiKeyService,  // Inject ApiKeyService
-        private readonly reflector: Reflector,  // To access metadata
+        private readonly apiKeyService: ApiKeyService,  
+        private readonly reflector: Reflector,  
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -21,17 +21,16 @@ export class ApiKeyGuard implements CanActivate {
         // Retrieve the required role from metadata, default to 'client'
         const requiredRole = this.reflector.get<string>(API_KEY_ROLE, context.getHandler()) || 'client';
 
-        console.log('Required Role:', requiredRole);  // Log the required role
-        console.log('API Key:', apiKey);  // Log the API key
+        console.log('Required Role:', requiredRole);  
+        console.log('API Key:', apiKey); 
 
-        // Step 1: Check if the API key exists in the database
+
         const apiKeyRecord = await this.apiKeyService.findByApiKey(apiKey);
 
         if (!apiKeyRecord) {
             throw new UnauthorizedException('Invalid API key');
         }
 
-        // Step 2: Validate based on required role
         if (requiredRole === 'admin' && apiKeyRecord.role !== 'admin') {
             throw new UnauthorizedException('Admin access required');
         }
@@ -40,14 +39,8 @@ export class ApiKeyGuard implements CanActivate {
             console.log('Admin unrestricted access');
         }
 
-        // Admin has unrestricted access to all data
         return true;
 
     }
 
-    private async getResourceForClient(apiKey: string, resourceId: number) {
-        // Example logic for fetching the resource associated with apiKey
-        const resource = await this.apiKeyService.findResourceByApiKeyAndResourceId(apiKey, resourceId);
-        return resource;  // Return the resource if it matches, otherwise null
-    }
 }
