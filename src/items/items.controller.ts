@@ -13,6 +13,7 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { IsOwnerGuard } from 'src/users/auth/is-owner.guard';
 import { ApiKeyRole } from 'src/Decorators/api.key.role';
 import { ApiKeyGuard } from 'src/Guard/api.key.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('items')
 export class ItemsController {
@@ -20,8 +21,9 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) { }
 
   @Post()
-  @ApiKeyRole('client')  // Only 'client' can access this route
-  @UseGuards(ApiKeyGuard)  // Apply the guard
+  @ApiKeyRole('client')
+  @Throttle({ short: { ttl: 50000, limit: 10 } })
+  @UseGuards(ApiKeyGuard)
   create(
     @Body(ValidationPipe) createItemDto: CreateItemDto
   ) {
@@ -29,22 +31,25 @@ export class ItemsController {
   }
 
   @Get()
-  @ApiKeyRole('admin')  // Only 'admin' can access this route
-  @UseGuards(ApiKeyGuard)  // Apply the guard
+  @ApiKeyRole('admin')
+  @Throttle({ short: { ttl: 50000, limit: 30 } })
+  @UseGuards(ApiKeyGuard)
   findAll() {
     return this.itemsService.findAll();
   }
 
   @Get(':id')
-  @ApiKeyRole('client')  // Only 'client' can access this route
-  @UseGuards(ApiKeyGuard)  // Apply the guard
+  @ApiKeyRole('client')
+  @Throttle({ short: { ttl: 50000, limit: 30 } })
+  @UseGuards(ApiKeyGuard)
   findOne(@Param('id') id: string) {
     return this.itemsService.findOne(id);
   }
 
   @Patch('update/:id')
-  @ApiKeyRole('client')  // Only 'client' can access this route
-  @UseGuards(ApiKeyGuard)  // Apply the guard
+  @ApiKeyRole('client')
+  @Throttle({ short: { ttl: 50000, limit: 5 } })
+  @UseGuards(ApiKeyGuard)
   update(
     @Param('id') id: string,
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) updateItemDto: UpdateItemDto
@@ -54,8 +59,9 @@ export class ItemsController {
 
 
   @Delete('delete/:id')
-  @ApiKeyRole('client')  // Only 'client' can access this route
-  @UseGuards(ApiKeyGuard)  // Apply the guard
+  @ApiKeyRole('client')
+  @Throttle({ short: { ttl: 50000, limit: 5 } })
+  @UseGuards(ApiKeyGuard)
   remove(@Param('id') id: string) {
     return this.itemsService.remove(id);
   }
