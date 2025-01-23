@@ -48,14 +48,13 @@ export class ItemsService {
   }
 
   async findByCategory(category: string) {
-    console.log('category:', category);
     const foundItems = await this.itemsRepository.find({ where: { category: category } });
 
     if (!foundItems) {
       throw new BadRequestException('Items not found');
     }
 
-    if(foundItems.length === 0 && foundItems) {
+    if (foundItems.length === 0 && foundItems) {
       throw new BadRequestException('No items available in this category');
     }
 
@@ -71,28 +70,56 @@ export class ItemsService {
       .createQueryBuilder('item')
       .where('item.name ILIKE :name', { name: `%${name}%` }) // ILIKE case-insensitive
       .getMany();
-  
+
     if (foundItems.length === 0) {
       throw new BadRequestException('No items available with this name');
     }
-  
+
     return {
       message: 'Items found',
       items: foundItems,
     };
   }
-  
+
+
+  async findByRatings(rating: number, name: string) {
+    console.log(typeof rating)
+    const foundItems = await this.itemsRepository
+      .createQueryBuilder('item')
+      .where('item.name ILIKE :name', { name: `%${name}%` }) // Case-insensitive search for name
+      .andWhere('item.ratings ->> \'average\' = :rating', { rating: rating }) // Querying nested JSON
+      .getMany();
+
+
+
+    if (foundItems.length === 0) {
+      const relevantItems = await this.itemsRepository
+        .createQueryBuilder('item')
+        .where('item.name ILIKE :name', { name: `%${name}%` })
+        .orWhere('CAST(item.ratings ->> \'average\' AS FLOAT) BETWEEN :low AND :high', { low: rating - 1, high: rating + 1 })
+        .getMany();
+    
+      return {
+        message: 'No items found matching the criteria, returned relevant results',
+        items: relevantItems,
+      };
+    }
+    
+
+    return {
+      message: 'Items found',
+      items: foundItems,
+    };
+  }
+
 
   async findOne(id: string) {
-    // Fetch item by itemId
     const foundItem = await this.itemsRepository.findOne({ where: { itemId: id } });
 
-    // If no item found, throw a BadRequestException
     if (!foundItem) {
       throw new BadRequestException('Item not found');
     }
 
-    // Return the found item in a structured response
     return {
       message: 'Item found',
       item: foundItem,
@@ -106,11 +133,12 @@ export class ItemsService {
     try {
 
       const item = await this.itemsRepository.findOne({ where: { itemId: id } });
+
       if (!item) {
         throw new BadRequestException('Item not found');
       }
 
-     const updatedDate: Date = new Date();
+      const updatedDate: Date = new Date();
 
       updateItemDto.updatedAt = updatedDate
 
@@ -141,5 +169,5 @@ export class ItemsService {
       console.error('Error in deleting item:', error);
       throw new BadRequestException(error);
     }
-  } 
+  }
 }
