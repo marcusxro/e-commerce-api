@@ -55,6 +55,15 @@ export class ItemsController {
     return this.itemsService.findByCategory(category);
   }
 
+
+  @Get('search/:name')
+  @ApiKeyRole('client')
+  @Throttle({ short: { ttl: 50000, limit: 30 } })
+  @UseGuards(ApiKeyGuard)
+  searchByName(@Param('name') name: string) {
+    return this.itemsService.searchByName(name);
+  }
+
   @Patch('update/:id')
   @ApiKeyRole('client')
   @Throttle({ short: { ttl: 50000, limit: 5 } })

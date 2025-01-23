@@ -65,6 +65,24 @@ export class ItemsService {
     };
   }
 
+
+  async searchByName(name: string) {
+    const foundItems = await this.itemsRepository
+      .createQueryBuilder('item')
+      .where('item.name ILIKE :name', { name: `%${name}%` }) // ILIKE case-insensitive
+      .getMany();
+  
+    if (foundItems.length === 0) {
+      throw new BadRequestException('No items available with this name');
+    }
+  
+    return {
+      message: 'Items found',
+      items: foundItems,
+    };
+  }
+  
+
   async findOne(id: string) {
     // Fetch item by itemId
     const foundItem = await this.itemsRepository.findOne({ where: { itemId: id } });
