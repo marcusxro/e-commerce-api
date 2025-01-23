@@ -13,24 +13,19 @@ export class ItemsService {
   constructor(
     @InjectRepository(ItemEntity)
     private readonly itemsRepository: Repository<ItemEntity>,
-    // @Inject('ClerkClient') private readonly clerkClient: ClerkClient, // Inject ClerkClient here
-
+    // @Inject('ClerkClient') private readonly clerkClient: ClerkClient, // Inject ClerkClient here later for production
   ) { }
 
   async create(createItemDto: CreateItemDto) {
     try {
-      // Ensure that you're not manually stringifying objects
-      const existingItem = await this.itemsRepository.findOne({ where: { itemId: createItemDto.itemId } });
 
+      const existingItem = await this.itemsRepository.findOne({ where: { itemId: createItemDto.itemId } });
 
       if (existingItem) {
         throw new BadRequestException('Item already exists');
       }
-
-      // Create the new item instance directly from the DTO
       const item = this.itemsRepository.create(createItemDto);
 
-      // Save the item to the database
       await this.itemsRepository.insert(item);
 
       return { message: 'Item created successfully', item };
@@ -49,6 +44,24 @@ export class ItemsService {
     return {
       message: 'Items found',
       items: transformedItems,
+    };
+  }
+
+  async findByCategory(category: string) {
+    console.log('category:', category);
+    const foundItems = await this.itemsRepository.find({ where: { category: category } });
+
+    if (!foundItems) {
+      throw new BadRequestException('Items not found');
+    }
+
+    if(foundItems.length === 0 && foundItems) {
+      throw new BadRequestException('No items available in this category');
+    }
+
+    return {
+      message: 'Items found',
+      items: foundItems,
     };
   }
 

@@ -46,6 +46,15 @@ export class ItemsController {
     return this.itemsService.findOne(id);
   }
 
+  @Get('filter/:category')
+  @ApiKeyRole('client')
+  @Throttle({ short: { ttl: 50000, limit: 30 } })
+  @UseGuards(ApiKeyGuard)
+  findByCategory(@Param('category') category: string) {
+    console.log('category:', category);
+    return this.itemsService.findByCategory(category);
+  }
+
   @Patch('update/:id')
   @ApiKeyRole('client')
   @Throttle({ short: { ttl: 50000, limit: 5 } })
