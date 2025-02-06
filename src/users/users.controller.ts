@@ -126,6 +126,9 @@ export class UsersController {
         return await this.usersService.ban_user(userid);
     }
 
+
+    
+
     @ApiKeyRole('admin')  
     @UseGuards(ApiKeyGuard)  
     @Patch('unban/:userid')

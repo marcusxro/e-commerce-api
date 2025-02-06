@@ -105,7 +105,6 @@ export class ItemsService {
       };
     }
     
-
     return {
       message: 'Items found',
       items: foundItems,
@@ -154,11 +153,44 @@ export class ItemsService {
     }
   }
 
+  async updateRatings(
+    id: string,
+    updateItemDto: UpdateItemDto
+  ) {
+    try {
+      const item = await this.itemsRepository.findOne({ where: { itemId: id } });
+
+      if (!item) {
+        throw new BadRequestException('Item not found');
+      }
+
+      const updatedDate: Date = new Date();
+
+      updateItemDto.updatedAt = updatedDate
+
+      const updatedItem = Object.assign(item, updateItemDto);
+
+      await this.itemsRepository.save(updatedItem);
+
+      return { message: 'Item ratings updated successfully', item: updatedItem };
+    }
+    catch (error) {
+      console.error('Error in updating item ratings:', error);
+      throw new BadRequestException(error);
+    }
+  }
 
 
   async remove(id: string) {
     try {
       const item = await this.itemsRepository.findOne({ where: { itemId: id } });
+
+      const isOwner = await this.itemsRepository.findOne({ where: { itemId: id } });
+
+      if(!isOwner) {
+        throw new BadRequestException('You are not the owner of this item');
+      }
+
       if (!item) {
         throw new BadRequestException('Item not found');
       }

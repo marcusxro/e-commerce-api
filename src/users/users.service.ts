@@ -45,7 +45,6 @@ export class UsersService {
     async get_user_by_id(
         userid: string
     ) {
-
         const user = await this.userRepository.findOne({ where: { userid: userid } });
 
         if (!user) {
@@ -57,7 +56,6 @@ export class UsersService {
 
 
     async create_user(createUserDto: CreateUserDto) {
-
         try {
             const existingUser = await
                 this.userRepository.findOne({ where: { userid: createUserDto.userid } });

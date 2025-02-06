@@ -13,6 +13,6 @@ import { ApiKeyService } from 'src/Service/api.key.service';
     TypeOrmModule.forFeature([ApiKey])
   ],
   controllers: [ItemsController],
-  providers: [ItemsService,ApiKeyService, ApiKeyGuard],
+  providers: [ItemsService, ApiKeyService, ApiKeyGuard],
 })
 export class ItemsModule {}
