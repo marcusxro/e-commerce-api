@@ -29,7 +29,7 @@ export class UsersController {
     @UseGuards(RolesGuard)
     @Throttle({ short: { ttl: 50000, limit: 30 } })
     @ApiKeyRole('admin')  
-    @UseGuards(ApiKeyGuard)  
+    @UseGuards(ApiKeyGuard, ClerkAuthGuard)  
     @Get()
     async get_all_users(
         @Ip() ip: string,

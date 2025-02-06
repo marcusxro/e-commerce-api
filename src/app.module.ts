@@ -22,15 +22,15 @@ import { ApiKey } from './Entities/api.entity';
   providers: [
     AppService,
     ApiKeyService,
-    // ClerkClientProvider,
+    ClerkClientProvider,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ClerkAuthGuard,
-    // }
+    {
+      provide: APP_GUARD,
+      useClass: ClerkAuthGuard,
+    }
   ],
   imports: [
     // AuthModule,
@@ -72,10 +72,9 @@ import { ApiKey } from './Entities/api.entity';
   ],
 })
 
-export class AppModule {}
 
-// export class AppModule implements NestModule {
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer.apply(ClerkMiddleware).forRoutes('*'); // Apply to all routes
-//   }
-// }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ClerkMiddleware).forRoutes('*'); // Apply to all routes
+  }
+}
